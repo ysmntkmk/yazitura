@@ -4,30 +4,43 @@ import { useState, useRef } from 'react';
 import '../styles/global.css';
 
 export default function App() {
+  // Tura ve yazı sayıları için state'ler
   const [tura, setTura] = useState(0);
   const [yazi, setYazi] = useState(0);
+  const [isFlipping, setIsFlipping] = useState(false); // Animasyon durumu
+  const [result, setResult] = useState(null); // Sonucu saklamak için yeni state
   const coinRef = useRef(null);
-  const [isFlipping, setIsFlipping] = useState(false); // animasyon durumunu kontrol eden state
 
+  // Coin animasyonu ve sonucu belirleyen fonksiyon
   const handleFlip = () => {
-    if (isFlipping) return; // Eğer animasyon halindeyse, başka bir işlem yapma
+    if (isFlipping) return; // Eğer animasyon devam ediyorsa başka işlem yapma
     setIsFlipping(true);
 
-    const result = Math.floor(Math.random() * 2);
+    // Rastgele tura ya da yazı seçme
+    const flipResult = Math.floor(Math.random() * 2);
+    setResult(flipResult); // Sonucu sakla
+
     coinRef.current.style.animation = 'none'; // Animasyonu sıfırla
     setTimeout(() => {
-      if (result === 1) {
-        coinRef.current.style.animation = 'spin-tura 3s forwards';
-        setTura(tura + 1);
+      if (flipResult === 1) {
+        coinRef.current.style.animation = 'spin-tura 3s forwards'; // Tura animasyonu
       } else {
-        coinRef.current.style.animation = 'spin-yazi 3s forwards';
-        setYazi(yazi + 1);
+        coinRef.current.style.animation = 'spin-yazi 3s forwards'; // Yazı animasyonu
       }
     }, 100);
-
-    disableButton();
   };
 
+  // Animasyon bitince sayıların arttırılması
+  const handleAnimationEnd = () => {
+    if (result === 1) {
+      setTura((prevTura) => prevTura + 1); // Tura geldiğinde sayıyı arttır
+    } else {
+      setYazi((prevYazi) => prevYazi + 1); // Yazı geldiğinde sayıyı arttır
+    }
+    setIsFlipping(false); // Animasyon bitince isFlipping durumunu sıfırla
+  };
+
+  // Butonu geçici olarak devre dışı bırakma fonksiyonu
   const disableButton = () => {
     document.querySelector('.flip-button').disabled = true;
     setTimeout(() => {
@@ -35,15 +48,13 @@ export default function App() {
     }, 3000);
   };
 
+  // Reset butonunu tıklama olayı
   const handleReset = () => {
-    setTura(0);
-    setYazi(0);
-    coinRef.current.style.animation = 'none';
-  };
-
- 
-  const handleAnimationEnd = () => {
-    setIsFlipping(false); 
+    setIsFlipping(false); // Animasyon durumu sıfırla
+    setResult(null); // Sonucu sıfırla
+    setTura(0); // Tura sayısını sıfırla
+    setYazi(0); // Yazı sayısını sıfırla
+    coinRef.current.style.animation = 'none'; // Coin animasyonunu sıfırla
   };
 
   return (
